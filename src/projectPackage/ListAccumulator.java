@@ -1,19 +1,23 @@
 package battleship;
 
+import javax.swing.*;
 import java.util.LinkedList;
 import java.util.ListIterator;
 
 import static java.util.Collections.swap;
 
-class ListAccumulator<Human, Bot, Vessel, Board extends Tile, Player, Ships> {
+class ListAccumulator<Human extends Ships, Board extends Player, Vessel extends ShipTile, Ocean extends OceanTile, Fog extends FogTile, Grid extends Tile> {
     //Attributes:
     ///Primitive
     ///Objects
     ///Arrays
     ///Collections
-    private LinkedList<Human> scoreBoard, gridList, oceanTiles, fogTiles, ships;
-    private LinkedList<Board> listsBoard;
+    private LinkedList<Human> ships;
+    private LinkedList<Board> scoreBoard;
     private LinkedList<Vessel> vesselTiles;
+    private LinkedList<Ocean> oceanTiles;
+    private LinkedList<Fog> fogTiles;
+    private LinkedList<Grid> gridList;
     private LinkedList<String> listsNames;
     //Constructor:
     ListAccumulator() {
@@ -23,47 +27,47 @@ class ListAccumulator<Human, Bot, Vessel, Board extends Tile, Player, Ships> {
     //Setter And Getter:
     ///Private Setter
     ///Protected Setter
-    void setScoreBoard(LinkedList<Human> scoreBoard) { this.scoreBoard = scoreBoard; }
+    void setScoreBoard(LinkedList<Board> scoreBoard) { this.scoreBoard = scoreBoard; }
     void setScoreBoardNew() {
-        this.scoreBoard = new LinkedList<Human>();
+        this.scoreBoard = new LinkedList<Board>();
     }
-    void setScoreBoardIndex(int index, Human element) { getScoreBoard().set(index, element); }
-    void setScoreBoardAddElement(Human element) {
+    void setScoreBoardIndex(int index, Board element) { getScoreBoard().set(index, element); }
+    void setScoreBoardAddElement(Board element) {
         getScoreBoard().add(element);
     }
-    void setGridList(LinkedList<Human> gridList) {
+    void setGridList(LinkedList<Grid> gridList) {
         this.gridList = gridList;
     }
     void setGridListNew() {
-        this.gridList = new LinkedList<Human>();
+        this.gridList = new LinkedList<Grid>();
     }
-    void setGridListIndex(int index, Human element) {
+    void setGridListIndex(int index, Grid element) {
         getGridList().set(index, element);
     }
-    void setGridListAddElement(Human element) {
+    void setGridListAddElement(Grid element) {
         getGridList().add(element);
     }
     void setOceanListNew() {
-        this.oceanTiles = new LinkedList<Human>();
+        this.oceanTiles = new LinkedList<Ocean>();
     }
-    void setOceanListIndex(int index, Human tile) {
+    void setOceanListIndex(int index, Ocean tile) {
         getOceanTiles().set(index, tile);
     }
-    void setOceanList(LinkedList<Human> oceanList) {
+    void setOceanList(LinkedList<Ocean> oceanList) {
         this.oceanTiles = oceanList;
     }
-    void setOceanTilesAddElement(int index, Human element) {
+    void setOceanTilesAddElement(int index, Ocean element) {
         getOceanTiles().set(index, element);
     }
-    void setFogTiles(LinkedList<Human> fogTiles) { this.fogTiles = fogTiles; }
+    void setFogTiles(LinkedList<Fog> fogTiles) { this.fogTiles = fogTiles; }
     void setFogTilesNew() {
-        this.fogTiles = new LinkedList<Human>();
+        this.fogTiles = new LinkedList<Fog>();
     }
-    void setFogTilesIndex(int index, Human element) {
+    void setFogTilesIndex(int index, Fog element) {
         getFogTiles().set(index, element);
     }
     void setFogTilesAddELement() {
-        this.fogTiles = new LinkedList<Human>();
+        this.fogTiles = new LinkedList<Fog>();
     }
     void setShips(LinkedList<Human> ships) {
         this.ships = ships;
@@ -86,6 +90,9 @@ class ListAccumulator<Human, Bot, Vessel, Board extends Tile, Player, Ships> {
     void setVesselTilesIndex(int index, Vessel element) {
         getVesselTiles().set(index, element);
     }
+    void setVesselTilesImage(int index, ImageIcon image) {
+        getVesselTiles(index).setBackgroundImage(image);
+    }
     void setVesselTilesAddElement(Vessel element) {
         getVesselTiles().add(element);
     }
@@ -99,16 +106,16 @@ class ListAccumulator<Human, Bot, Vessel, Board extends Tile, Player, Ships> {
     ///Public Setter
     ///Private Getter
     ///Protected Getter
-    LinkedList<Human> getScoreBoard() {
+    LinkedList<Board> getScoreBoard() {
         return scoreBoard;
     }
-    LinkedList<Human> getGridList() {
+    LinkedList<Grid> getGridList() {
         return gridList;
     }
-    LinkedList<Human> getOceanTiles() {
+    LinkedList<Ocean> getOceanTiles() {
         return oceanTiles;
     }
-    LinkedList<Human> getFogTiles() {
+    LinkedList<Fog> getFogTiles() {
         return fogTiles;
     }
     LinkedList<Human> getShips() {
@@ -117,6 +124,9 @@ class ListAccumulator<Human, Bot, Vessel, Board extends Tile, Player, Ships> {
     LinkedList<Vessel> getVesselTiles() {
         return vesselTiles;
     }
+    Vessel getVesselTiles(int index) {
+        return getVesselTiles().get(index);
+    }
     LinkedList<String> getListsNames() {
         return listsNames;
     }
@@ -124,20 +134,60 @@ class ListAccumulator<Human, Bot, Vessel, Board extends Tile, Player, Ships> {
     //Behavior:
     ///Private Behavior
     ///Protected Behavior
-    void orderTileList(LinkedList<Tile> tiles) {
+    void orderGridList() {
         boolean done = false;
         int jumps = 0;
-        ListIterator<Tile> listIterator = tiles.listIterator();
+        ListIterator<Grid> listIterator = getGridList().listIterator();
         while(!done) {
-            for(Tile tile: tiles) {
+            for(Grid tile: getGridList()) {
                 if(listIterator.hasNext() && tile.compareTo(listIterator.next()) < 0) {
-                    swap(tiles, tiles.indexOf(tile), listIterator.nextIndex());
+                    swap(getGridList(), getGridList().indexOf(tile), listIterator.nextIndex());
                 } else if(listIterator.hasNext() && tile.compareTo(listIterator.next()) > 0) {
                     jumps = jumps + 1;
                 } else if(listIterator.hasNext() && tile.compareTo(listIterator.next()) == 0) {
                     jumps = jumps + 1;
                 } else if(!listIterator.hasNext()) {
-                    if(jumps == tiles.size() - 1) {
+                    if(jumps == getGridList().size() - 1) {
+                        done = true;
+                    }
+                }
+            }
+        }
+    }
+    void orderPlayerList() {
+        boolean done = false;
+        int jumps = 0;
+        ListIterator<Board> listIterator = getScoreBoard().listIterator();
+        while(!done) {
+            for(Board player: getScoreBoard()) {
+                if(listIterator.hasNext() && player.compareTo(listIterator.next()) < 0) {
+                    swap(getScoreBoard(), getScoreBoard().indexOf(player), listIterator.nextIndex());
+                } else if(listIterator.hasNext() && player.compareTo(listIterator.next()) > 0) {
+                    jumps = jumps + 1;
+                } else if(listIterator.hasNext() && player.compareTo(listIterator.next()) == 0) {
+                    jumps = jumps + 1;
+                } else if(!listIterator.hasNext()) {
+                    if(jumps == getScoreBoard().size() - 1) {
+                        done = true;
+                    }
+                }
+            }
+        }
+    }
+    void orderShipList() {
+        boolean done = false;
+        int jumps = 0;
+        ListIterator<Human> listIterator = getShips().listIterator();
+        while(!done) {
+            for(Human ship: getShips()) {
+                if(listIterator.hasNext() && ship.compareTo(listIterator.next()) < 0) {
+                    swap(getShips(), getShips().indexOf(ship), listIterator.nextIndex());
+                } else if(listIterator.hasNext() && ship.compareTo(listIterator.next()) > 0) {
+                    jumps = jumps + 1;
+                } else if(listIterator.hasNext() && ship.compareTo(listIterator.next()) == 0) {
+                    jumps = jumps + 1;
+                } else if(!listIterator.hasNext()) {
+                    if(jumps == getShips().size() - 1) {
                         done = true;
                     }
                 }
@@ -152,6 +202,55 @@ class ListAccumulator<Human, Bot, Vessel, Board extends Tile, Player, Ships> {
             }
         }
         return numberOfHits;
+    }
+    void provideCoordinatesToTiles(int[][] coordinates) {
+        int index = 0;
+        for(Vessel a: getVesselTiles()) {
+            a.setXPos(coordinates[0][index]);
+            index++;
+        }
+        index = 0;
+        for(Vessel a: getVesselTiles()) {
+            a.setYPos(coordinates[1][index]);
+            index++;
+        }
+    }
+    void assembleShipTileCoordinates(boolean horizontal, int numberOfTiles, Data images) {
+        if(horizontal) {
+            for (int i = 0; i < numberOfTiles; i++) {
+                setVesselTilesIndex(i, (Vessel) new ShipTile(0, 0));
+                if (i == 0) {
+                    setVesselTilesImage(i, images.getShipEndLeft());
+                } else if (i < numberOfTiles - 1) {
+                    setVesselTilesImage(i, images.getShipHullLeftRight());
+                } else if (i == numberOfTiles - 1) {
+                    setVesselTilesImage(i, images.getShipEndRight());
+                }
+            }
+        } else {
+            for (int i = 0; i < numberOfTiles; i++) {
+                setVesselTilesIndex(i, (Vessel) new ShipTile(0, 0));
+                if (i == 0) {
+                    setVesselTilesImage(i, images.getShipEndTop());
+                } else if (i < numberOfTiles - 1) {
+                    setVesselTilesImage(i, images.getShipHullTopBottom());
+                } else if (i == numberOfTiles - 1) {
+                    setVesselTilesImage(i, images.getShipEndBottom());
+                }
+            }
+        }
+    }
+    void assembleGridList() {
+        setGridListNew();
+        for(Human ship: getShips()) {
+            for(Vessel tile : getVesselTiles()) {
+                setGridListAddElement((Grid) tile);
+            }
+        }
+        for(Ocean tile : getOceanTiles()) {
+            setGridListAddElement((Grid) tile);
+        }
+        orderGridList();
     }
     ///Public Behavior
 }
