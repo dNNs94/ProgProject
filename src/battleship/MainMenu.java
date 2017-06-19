@@ -9,7 +9,7 @@ import javax.swing.*;
 
 public class MainMenu extends JFrame {
 
-
+	// Listener im MainMenu und Networkmenu durch einfügen von Methoden für Buttons reduziert ( closeGui(), retName(), clickPvP(), cancelNet() und connectNet() )
 		
 	/**
 	 * 
