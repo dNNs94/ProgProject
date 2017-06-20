@@ -1,3 +1,5 @@
+package battleship;
+
 class FogTile extends Tile {
 
     private boolean fired, hit, miss;
