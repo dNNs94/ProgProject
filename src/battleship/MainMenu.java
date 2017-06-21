@@ -9,7 +9,7 @@ import javax.swing.*;
 
 public class MainMenu extends JFrame {
 
-	// Listener im MainMenu und Networkmenu durch einfügen von Methoden für Buttons reduziert ( closeGui(), retName(), clickPvP(), cancelNet() und connectNet() )
+	//Letzte Änderung: Listener im MainMenu und Networkmenu durch einfügen von Methoden für Buttons reduziert ( closeGui(), retName(), clickPvP(), cancelNet() und connectNet() )
 		
 	/**
 	 * 
@@ -17,46 +17,29 @@ public class MainMenu extends JFrame {
 	private static final long serialVersionUID = 1L;
 	// Komponenten erstellen
 	private JButton close;
-	//private JButton settings;
-	//private JButton startGame;
-	//private JButton saveName;
-	//private JButton changeColor;
 	private JButton pvp;
-	//private JButton wasNoch;
 	private JTextField player;
 	private JLabel name;
 	private String playerName;
 	
 	private ClickListener clickListener;
-	//private CloseListener closeListener;
-	//private PvPListener pvpListener;
-	//private NameListener nameListener;
 	
 	private void initializeComps() {
 		//Komponenten initialisieren
 		this.close = new JButton("Close");
-	//	this.settings = new JButton("Settings");
-	//	this.startGame = new JButton("Play vs Bot");
-	//	this.saveName = new JButton("Save Name");
-	//	this.changeColor = new JButton("Change Color");
-		this.pvp = new JButton("Play vs Player");
-	//	this.wasNoch = new JButton("Was Noch?!");
-		
+		this.pvp = new JButton("Play vs Player");	
 		this.player = new JTextField("Player");
 		player.setEditable(true);
 		
 		this.name = new JLabel("Name: ");
 	
-		//this.pvpListener = new PvPListener();
 		this.clickListener = new ClickListener();
-		//this.nameListener = new NameListener();
 	}
 	//Getter und Setter Methoden
 	public String getName(){
 		return playerName;
 	}
-	
-	
+
 	
 	public void sortComps() {
 		//Komponenten per GridBagLayout im Frame anordnen
@@ -81,9 +64,7 @@ public class MainMenu extends JFrame {
 		//c.gridy = 6;
 		add(this.close, c);
 		
-	}
-	
-
+	}	
 	
 	public MainMenu(String title){
 		//Konstruktor
@@ -172,6 +153,10 @@ public class MainMenu extends JFrame {
     		this.clickListener = new ClickListener();
 
     	}
+    	//Getter und setter
+    	public String getIp(){
+    		return ip.getText();
+    	}
     	
     	public void sortComps() {
     			//Komponenten per GridBagLayout im Frame anordnen
@@ -220,7 +205,9 @@ public class MainMenu extends JFrame {
             // Frame schließen
     		//System.exit(0);
         	// Hier später GameFrame öffnen
-        	JOptionPane.showMessageDialog(this, "KOMMT NOCH!\nHier Spielframe hindenken!");
+    		dispose();
+        	//JOptionPane.showMessageDialog(this, "KOMMT NOCH!\nHier Spielframe hindenken!");
+        	new MainWindow();
     	}
     	
     	private class ClickListener implements ActionListener{
