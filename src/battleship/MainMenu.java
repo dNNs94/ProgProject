@@ -2,6 +2,9 @@ package battleship;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.net.URL;
 
 import javax.swing.*;
 
@@ -120,62 +123,66 @@ public class MainMenu extends JFrame {
 	}
 	
 
+		
+		
+	
 	private class NetworkMenu extends JFrame{
     	/**
 		 * 
 		 */
 		private static final long serialVersionUID = 1L;
 		//SubKlasse für Pop-Up NetzwerkMenu
-    	private JLabel labelName;
-    	private JLabel name;
-    	private JLabel labelIp;
-    	private JLabel ip;
-    	private JLabel labelPing;
-    	private JLabel ping;
-    	
-    	private JButton connect;
-    	private JButton cancel;
-    	
-    	private ClickListener clickListener;
-    	
+   		private JLabel labelName;
+   		private JLabel name;
+   		private JLabel labelIp;
+    	private JTextField ip;  	
+   		private JButton connect;
+   		private JButton cancel;
+   	
+   		private ClickListener clickListener;    	
     	private void initializeComps(){
-    		//Komponenten Initialisieren
-    		this.labelName = new JLabel("Name: ");
-    		this.name = new JLabel(player.getText());
-    		this.labelIp = new JLabel("IP: ");
-    		this.ip = new JLabel("HIER IP GETTER EINFÜGEN");
-    		this.labelPing = new JLabel("Ping: ");
-    		this.ping = new JLabel("HIER PING GETTER EINFÜGEN");
+    	//Komponenten Initialisieren
+   			this.labelName = new JLabel("Name: ");
+   			this.name = new JLabel(player.getText());
+   			this.labelIp = new JLabel("IP: ");
+   			this.ip = new JTextField(getIp());
+    		this.ip.setEditable(false);
     		
     		this.connect = new JButton("Connect!");
     		this.cancel = new JButton("Cancel");
     		
-    		this.clickListener = new ClickListener();
+   			this.clickListener = new ClickListener();
 
-    	}
-    	//Getter und setter
+   		}
+    		//Getter und setter
     	public String getIp(){
-    		return ip.getText();
-    	}
+    		URL myIP;
+    		try{
+    			myIP = new URL("http://icanhazip.com/");			
+    			BufferedReader in = new BufferedReader( new InputStreamReader(myIP.openStream()));
+    			return in.readLine();
+    			} catch (Exception e2) {
+   					e2.printStackTrace();
+   				}
+   				return "IP ADRESS NOT FOUND";
+    		}
+    	
+    	
     	
     	public void sortComps() {
-    			//Komponenten per GridBagLayout im Frame anordnen
-    			this.getContentPane().setLayout(new GridBagLayout());
-    			GridBagConstraints c = new GridBagConstraints();
-    			c.fill = GridBagConstraints.BOTH;
-    			c.insets = new Insets(4, 4, 4, 4);
-    			
-    			add(this.labelName, c);
-    			add(this.name, c);
-    			c.gridy = 1;
-    			add(this.labelIp, c);
-    			add(this.ip, c);
-    			c.gridy = 2;
-    			add(this.labelPing, c);
-    			add(this.ping, c);
-    			c.gridy = 3;;
-    			add(this.cancel, c);
-    			add(this.connect, c);
+    		//Komponenten per GridBagLayout im Frame anordnen
+   			this.getContentPane().setLayout(new GridBagLayout());
+   			GridBagConstraints c = new GridBagConstraints();
+   			c.fill = GridBagConstraints.BOTH;
+   			c.insets = new Insets(4, 4, 4, 4);
+       		add(this.labelName, c);
+    		add(this.name, c);
+    		c.gridy = 1;
+   			add(this.labelIp, c);
+   			add(this.ip, c);
+   			c.gridy = 2;
+   			add(this.cancel, c);
+    		add(this.connect, c);
     			
     			
     		}
@@ -184,54 +191,54 @@ public class MainMenu extends JFrame {
     		//Konstruktor
     		super(title);
     		initializeComps();										//Komponenten initialisieren
-    		sortComps();											//Komponenten nach Layoutvorgabe sortieren
-    		registerListener();										//Listener zuweisen
-    		this.setVisible(true);									//Sichtbar machen
-    		this.setSize(300, 300);									//Fenstergröße festlegen
+   			sortComps();											//Komponenten nach Layoutvorgabe sortieren
+   			registerListener();										//Listener zuweisen
+   			this.setVisible(true);									//Sichtbar machen
+   			this.setSize(300, 300);									//Fenstergröße festlegen
     		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);	//Programm schließen, wenn Fenster geschlossen wird
     		this.setResizable(false); 								//Fenstergröße nicht veränderbar
-    		
-    	}
+    	
+   		}
     	
     	public void cancelNet(){
     		//Bei Klick auf Cancel im NetworkMenu
-            //Frame schließen
-        	dispose();
-        	//Neuen Frame öffnen
-        	new MainMenu("Main Menu");
+   			//Frame schließen
+   			dispose();
+   			//Neuen Frame öffnen
+   			new MainMenu("Main Menu");
     	}
-    	
+    
     	public void connectNet(){
-            // Frame schließen
+    		// Frame schließen
     		//System.exit(0);
-        	// Hier später GameFrame öffnen
-    		dispose();
-        	//JOptionPane.showMessageDialog(this, "KOMMT NOCH!\nHier Spielframe hindenken!");
-        	new MainWindow();
-    	}
+    		// Hier später GameFrame öffnen
+   			dispose();
+   			//JOptionPane.showMessageDialog(this, "KOMMT NOCH!\nHier Spielframe hindenken!");
+   			new MainWindow();
+   		}
     	
     	private class ClickListener implements ActionListener{
-    		//ActionListener für Klick auf Connect-, oder Cancel-Button
-    	    @Override
-    	    public void actionPerformed(ActionEvent e) {
-    	        if(e.getSource() == connect){
-    	        	connectNet();
-    	        }
-    	        else if(e.getSource() == cancel){
-    	        	// Wenn Player vs Player Button gedrückt wurde
-    	        	cancelNet();
-    	        }
+    	//ActionListener für Klick auf Connect-, oder Cancel-Button
+   			@Override
+    		public void actionPerformed(ActionEvent e) {
+    			if(e.getSource() == connect){
+    				connectNet();
+   				}
+   				else if(e.getSource() == cancel){
+   				// Wenn Player vs Player Button gedrückt wurde
+    				cancelNet();
+    			}
     	    }
     	}
     	    	
     	public void registerListener(){
-    		//Listener dem jeweiligen Button zuweisen
+    	//Listener dem jeweiligen Button zuweisen
     		this.cancel.addActionListener(this.clickListener);
     		this.connect.addActionListener(this.clickListener);
     	}
     		
 	}
-    		
+			
 	public void registerListener(){
 		//Listener dem jeweiligen Button zuweisen
 		this.close.addActionListener(this.clickListener);
