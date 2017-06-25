@@ -254,9 +254,11 @@ class ListAccumulator<Human extends Ships, Board extends Player, Vessel extends 
     void provideCoordinatesToTiles(int[][] coordinates) {
         int index = 0;
         for(Vessel a: getVesselTiles()) {
-            a.setXPos(coordinates[0][index]);
-            a.setYPos(coordinates[1][index]);
-            index++;
+            if(coordinates[0][index] > 0 && coordinates[1][index] > 0) {
+                a.setXPos(coordinates[0][index]);
+                a.setYPos(coordinates[1][index]);
+                index++;
+            }
         }
     }
     void assembleShipTileCoordinates(boolean horizontal, int numberOfTiles, Data images) {
