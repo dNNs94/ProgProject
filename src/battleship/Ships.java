@@ -1,17 +1,33 @@
+//Package Dependency
 package battleship;
+//Imports
 
+import javax.swing.*;
+//Class
 abstract class Ships implements Comparable<Ships> {
+    //Attributes:
+    ///Primitive
     private boolean running, horizontal;
     private String name, shipClass;
     private int numberOfTiles, numberOfHitsTaken;
-    private ListAccumulator Lists;
+    ///Objects
+    private ListAccumulator lists;
     private Data images;
-    Ships(int numberOfTiles, int[][] coordinates) {
+    private JLabel nameCell, classCell, hitsCell, runningCell;
+    ///Arrays
+    //Constructor:
+    Ships(int numberOfTiles, String shipClass, int[][] coordinates) {
+        ///Initially Used Setter
+        setName();
+        setShipClass(shipClass);
         setLists();
         setData();
         setNumberOfTiles(numberOfTiles);
         setTiles(coordinates);
     }
+    //Setter And Getter:
+    ///Private Setter
+    ///Protected Setter
     void setNumberOfTiles(int number) {
         this.numberOfTiles = number;
     }
@@ -26,7 +42,7 @@ abstract class Ships implements Comparable<Ships> {
         getImages().loadImages();
     }
     void setLists() {
-        this.Lists = new ListAccumulator();
+        this.lists = new ListAccumulator();
     }
     void setRunning(boolean running) {
         this.running = running;
@@ -45,9 +61,24 @@ abstract class Ships implements Comparable<Ships> {
     void setShipClass(String shipClass) {
         this.shipClass = shipClass;
     }
+    void setNameCell(JLabel nameCell) {
+        this.nameCell = nameCell;
+    }
+    void setClassCell(JLabel classCell) {
+        this.classCell = classCell;
+    }
+    void setHitsCell(JLabel hitsCell) {
+        this.hitsCell = hitsCell;
+    }
+    void setRunningCell(JLabel runningCell) {
+        this.runningCell = runningCell;
+    }
+    ///Public Setter
+    ///Private Getter
     Data getImages() {
         return this.images;
     }
+    ///Protected Getter
     String getName() {
         return this.name;
     }
@@ -55,7 +86,7 @@ abstract class Ships implements Comparable<Ships> {
         return this.shipClass;
     }
     ListAccumulator getLists() {
-        return this.Lists;
+        return this.lists;
     }
     boolean isRunning() {
         return this.running;
@@ -65,6 +96,22 @@ abstract class Ships implements Comparable<Ships> {
         return this.numberOfHitsTaken;
     }
     int getNumberOfTiles() { return this.numberOfTiles; }
+    JLabel getNameCell() {
+        return nameCell;
+    }
+    JLabel getClassCell() {
+        return classCell;
+    }
+    JLabel getHitsCell() {
+        return hitsCell;
+    }
+    JLabel getRunningCell() {
+        return runningCell;
+    }
+    ///Public Getter
+    //Behavior:
+    ///Private Behavior
+    ///Protected Behavior
     void determineHorizontal(int[][] coordinates) {
         int tempIntegerHorizontal = 0;
         int tempIntegerVertical = 0;
@@ -82,6 +129,7 @@ abstract class Ships implements Comparable<Ships> {
             setHorizontal(false);
         }
     }
+    ///Public Behavior
     @Override
     public int compareTo(Ships ship) {
         if(getNumberOfHitsTaken() < ship.getNumberOfHitsTaken()){
