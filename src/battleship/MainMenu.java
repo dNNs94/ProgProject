@@ -1,532 +1,485 @@
 package battleship;
 
-import java.awt.*;
-import java.awt.event.*;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.util.Enumeration;
-import javax.swing.*;
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JTextField;
 
 
 
-public class MainMenu extends JFrame {
 
-	//Letzte Änderung: Listener im MainMenu und Networkmenu durch einfügen von Methoden für Buttons reduziert ( closeGui(), retName(), clickPvP(), cancelNet() und connectNet() )
-		
+public class MainMenu extends JFrame{
+	
+
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = 1L;
-	// Komponenten erstellen
-	private JButton close;
-	private JButton pvp;
-	private JTextField player;
-	private JLabel name;
-	private String playerName;
+	private static final long serialVersionUID = 2256625034772044330L;
+	//Attributes
+	public int x2, y2;
+	public int x, y;
+	public int[][] coordinates = new int[7][14];
+	public int[][][] shipCoordinates; // erste position gibt schiffnummer an, zweite gibt x und y coords, dritte wert zur koordinate
+	public int ships = 0;	
 	
-	private ClickListener clickListener;
-	
-	private void initializeComps() {
-		//Komponenten initialisieren
-		this.close = new JButton("Close");
-		this.pvp = new JButton("Play vs Player");	
-		this.player = new JTextField("Player");
-		player.setEditable(true);
+	public JTextField player;
+	public JTextField coordX;
+	public JTextField coordX2;
+	public JTextField coordY;
+	public JTextField coordY2;
 		
-		this.name = new JLabel("Name: ");
+	public JLabel labelCoordX;
+	public JLabel labelCoordX2;
+	public JLabel labelCoordY;
+	public JLabel labelCoordY2;
+	public JLabel tutorial;
+	public JLabel name;
 	
-		this.clickListener = new ClickListener();
-	}
-	//Getter und Setter Methoden
-	public String getName(){
-		return playerName;
-	}
+	public String playerName;
+		
+	public JButton corvette = new JButton("Corvette (Länge: 2)");
+	public JButton cruiser = new JButton("Cruiser (Länge: 5)");
+	public JButton destroyer = new JButton("Destroyer (Länge: 4)");
+	public JButton frigate = new JButton("Frigate (Länge: 3)");
+	public JButton startGame = new JButton("Start Game!");
+		
+	public ClickListener clickListener;
+	public TextChangeListener textListener;
+	public MainMenu menu;
+	public boolean horizontal;
+	
+	//Setter/Getter
+    public void setHorizontal(boolean horizontal){
+    	this.horizontal = horizontal;
+    }
 
-	
-	public void sortComps() {
-		//Komponenten per GridBagLayout im Frame anordnen
-		this.getContentPane().setLayout(new GridBagLayout());
-		GridBagConstraints c = new GridBagConstraints();
-		c.fill = GridBagConstraints.BOTH;
-		c.insets = new Insets(4, 4, 4, 4);
-		
-		
-		add(this.name, c);
-		add(this.player, c);
-		//add(this.saveName, c);
-		c.gridy = 1;
-		c.gridx = 1;
-		//add(this.startGame, c);
-		//c.gridy = 2;
-		add(this.pvp, c);
-		//c.gridy = 3;
-		//add(this.settings, c);
-		c.gridy = 5;
-		//add(this.wasNoch, c);
-		//c.gridy = 6;
-		add(this.close, c);
-		
-	}	
-	
-	public MainMenu(){
-		
-	}
-	
-	public MainMenu(String title){
-		//Konstruktor
-		super(title);
-		initializeComps();										//Komponenten initialisieren
-		sortComps();											//Komponenten nach Layoutvorgabe sortieren
-		registerListener();										//Listener zuweisen
-		this.setVisible(true);									//Sichtbar machen
-		this.setSize(300, 300);									//Fenstergröße festlegen
-		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);	//Programm schließen, wenn Fenster geschlossen wird
-		this.setResizable(false); 								//Fenstergröße nicht veränderbar		
-	}
-	
-	// Methoden für Buttons
-	public void closeGui(){
-		// Methode für Close Button
-		System.exit(0);
-	}
-	
-	public void retName(){
+   	public int[][] setShip(){
+   		this.x = Integer.parseInt(coordX.getText());
+   		this.x2 = Integer.parseInt(coordX2.getText());
+   		this.y = Integer.parseInt(coordY.getText());
+   		this.y2 = Integer.parseInt(coordY2.getText());
+   		int coord;
+   		int ships;
+   		
+   		for(ships = 0; ships < coordinates.length; ships++){
+   			if(y - y2 == 0){
+   				// Schiff liegt horizontal
+   				coord=0;
+   				for(int value=x;value<x2 +1;value++){
+   					if(coord<=x2-x){
+   						coordinates[1][coord]=value;
+   						coord++;
+
+   					}
+   				}
+   			}
+   			else if (x - x2 == 0){
+   				//Schiff liegt vertikal
+   				coord=0;
+   				for(int value=y;value<y2 +1;value++){
+   					if(coord<=y2-y){
+   						coordinates[1][coord]=value; 
+   						coord++;
+   						
+   					}
+   				}
+   			}
+   		}
+   		return coordinates;
+   	}
+   	
+   	public void printCords(){
+   		for(int count=1; count <coordinates.length; count++)
+   			for(int i=0;i<coordinates.length;i++)
+   				for(int j=0;j<coordinates[i].length;j++)
+   					System.out.print(count+ ". " + coordinates[i][j] + "\n"); // do something with elements 
+   					System.out.print("-----");
+   	 }
+
+    public int[][] getShipCoordinates(){      		      		
+    	return coordinates;
+    }
+    
+	public String getName(){
 		// Namen aus JTextField auslesen und in Variable "playerName" übertragen
 		playerName = player.getText();
+		return playerName;
 	}
-	
-	public void clickPvP(){
-		// Bei Klick auf Player vs Player
-        	// Frame schließen
-    		dispose();
-    		// Neuen Frame öffnen
-    		new NetworkMenu("Network Menu");
+	public int getShips(){
+		return ships;
 	}
-	
-
-	
-	private class ClickListener implements ActionListener{
-		//ActionListener für Klick auf "Close"-Button
-	    @Override
-	    public void actionPerformed(ActionEvent e) {
-	        // Abfragen welcher JButton geklickt wurde
-	        if(e.getSource() == close){
-	        	// Wenn close Button gedrückt wurde
-	        	closeGui();
-	        }
-	        else if(e.getSource() == pvp){
-	        	// Wenn Player vs Player Button gedrückt wurde
-	        	clickPvP();
-	        }
-	        else if(e.getSource() == player){
-	        	// Wenn Textfeld-Eingabe für Spielernamen getätigt wird
-	        	playerName = player.getText();
-	        }
-	    }
-	}
-	
-
-		
-		
-	
-	public class NetworkMenu extends JFrame{
-    	/**
-		 * 
-		 */
-		private static final long serialVersionUID = 1L;
-		//SubKlasse für Pop-Up NetzwerkMenu
-   		private JLabel labelName;
-   		private JLabel name;
-   		private JLabel labelIp;
-    	private JTextField ip;  	
-   		private JButton connect;
-   		private JButton cancel;
-   		
-   		private int[] shipCoordinates = new int[10];
-   		
-   		private ClickListener clickListener;    	
-    	private void initializeComps() {
-    	//Komponenten Initialisieren
-   			this.labelName = new JLabel("Name: ");
-   			this.name = new JLabel(player.getText());
-   			this.labelIp = new JLabel("IP: ");
-			try {
-				this.ip = new JTextField(getIP());
-			} catch (SocketException e) {
-				// TODO Automatisch generierter Erfassungsblock
-				e.printStackTrace();
-			}
-    		this.ip.setEditable(false);
-    		
-    		this.connect = new JButton("Connect!");
-    		this.cancel = new JButton("Cancel");
-    		
-   			this.clickListener = new ClickListener();
-
-   		}
-    	//Getter und setter
-    	
-
-    	public String getIP() throws SocketException {
-    		Enumeration e = NetworkInterface.getNetworkInterfaces();
-    		while(e.hasMoreElements())
-    		{
-    		    NetworkInterface n = (NetworkInterface) e.nextElement();
-    		    Enumeration ee = n.getInetAddresses();
-    		    while (ee.hasMoreElements())
-    		    {   		    		 		    	
-    		        InetAddress i = (InetAddress) ee.nextElement();
-    		        if(i.toString().contains("192.168")){
-    		        	return i.getHostAddress();
-    		        }
-    		    }
-    		}
-    		return null;
-    	}
-    	
-    	
-    	
-    	public void sortComps() {
-    		//Komponenten per GridBagLayout im Frame anordnen
-   			this.getContentPane().setLayout(new GridBagLayout());
-   			GridBagConstraints c = new GridBagConstraints();
-   			c.fill = GridBagConstraints.BOTH;
-   			c.insets = new Insets(4, 4, 4, 4);
-       		add(this.labelName, c);
-    		add(this.name, c);
-    		c.gridy = 1;
-   			add(this.labelIp, c);
-   			add(this.ip, c);
-   			c.gridy = 2;
-   			add(this.cancel, c);
-    		add(this.connect, c);
-    			
-    			
-    		}
-    	
-    	public NetworkMenu(String title){
-    		//Konstruktor
-    		super(title);
-    		initializeComps();										//Komponenten initialisieren
-   			sortComps();											//Komponenten nach Layoutvorgabe sortieren
-   			registerListener();										//Listener zuweisen
-   			this.setVisible(true);									//Sichtbar machen
-   			this.setSize(300, 300);									//Fenstergröße festlegen
-    		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);	//Programm schließen, wenn Fenster geschlossen wird
-    		this.setResizable(false); 								//Fenstergröße nicht veränderbar
-    	
-   		}
-    	
-    	public NetworkMenu(){
-    		
-    	}
-    	
-       	public void cancelNet(){
-    		//Bei Klick auf Cancel im NetworkMenu
-   			//Frame schließen
-   			dispose();
-   			//Neuen Frame öffnen
-   			new MainMenu("Main Menu");
-    	}
     
-    	public void connectNet(){
-    		// Frame schließen
-    		//System.exit(0);
-    		// Hier später GameFrame öffnen
-   			dispose();
-   			//JOptionPane.showMessageDialog(this, "KOMMT NOCH!\nHier Spielframe hindenken!");
-   			new ShipMenu("Ship Menu");
-   		}
-    	
-    	private class ClickListener implements ActionListener{
-    	//ActionListener für Klick auf Connect-, oder Cancel-Button
-   			@Override
-    		public void actionPerformed(ActionEvent e) {
-    			if(e.getSource() == connect){
-    				connectNet();
-   				}
-   				else if(e.getSource() == cancel){
-   				// Wenn Player vs Player Button gedrückt wurde
-    				cancelNet();
-    			}
-    	    }
-    	}
-    	
-    	public class ShipMenu extends JFrame{
-    		
-    		private String x, x2, y, y2;
-    		private int[][] coordinates;
-    		private int[] shipCoordinates = new int[10];
-    		private int r = 0;
-    		
-    		
-    		private JTextField coordX;
-    		private JTextField coordX2;
-    		private JTextField coordY;
-    		private JTextField coordY2;
-    		
-    		private JLabel labelCoordX;
-    		private JLabel labelCoordX2;
-    		private JLabel labelCoordY;
-    		private JLabel labelCoordY2;
-    		private JLabel tutorial;
-    		
-    		private JButton corvette;
-    		private JButton cruiser;
-    		private JButton destroyer;
-    		private JButton frigate;
-    		private JButton placeShip;
-    		
-    		private ClickListener clickListener;
-    		
-        	public ShipMenu(String title){
-        		//Konstruktor
-        		super(title);
-        		initializeComps();										//Komponenten initialisieren
-       			sortComps();											//Komponenten nach Layoutvorgabe sortieren
-       			registerListener();										//Listener zuweisen
-       			this.setVisible(true);									//Sichtbar machen
-       			this.setSize(600, 600);									//Fenstergröße festlegen
-        		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);	//Programm schließen, wenn Fenster geschlossen wird
-        		this.setResizable(false); 								//Fenstergröße nicht veränderbar
-        	
-       		}
-    		
-        	private void initializeComps() {
-            	//Komponenten Initialisieren
-           			this.coordX = new JTextField();
-           			this.coordX2 =  new JTextField();
-           			this.coordY =  new JTextField();
-           			this.coordY2 =  new JTextField();
-           			
-            		this.labelCoordX = new JLabel("X starting coordiantes: ");
-            		this.labelCoordX2 = new JLabel("X ending coordiantes: ");
-            		this.labelCoordY = new JLabel("Y starting coordiantes: ");
-            		this.labelCoordY2 = new JLabel("Y ending coordiantes: ");
-            		this.tutorial = new JLabel("Chose Ship -> Enter Coordinates -> Click 'Place Ship!'");
-            		
-            		this.corvette = new JButton("Corvette (Länge: 2)");
-            		this.frigate = new JButton("Frigate (Länge: 3)");
-            		this.destroyer = new JButton("Destroyer (Länge: 4)");
-            		this.cruiser = new JButton("Cruiser (Länge: 5)");
-            		
-            		this.placeShip = new JButton("Place Ship!");
-            		
-           			this.clickListener = new ClickListener();
-
-           		}
-        	
-        	public void sortComps() {
-        		//Komponenten per GridBagLayout im Frame anordnen
-       			this.getContentPane().setLayout(new GridBagLayout());
-       			GridBagConstraints c = new GridBagConstraints();
-       			c.fill = GridBagConstraints.BOTH;
-       			c.insets = new Insets(2, 2, 2, 2);
-       			add(this.tutorial, c);
-       			c.gridy = 1;
-           		add(this.corvette, c);
-           		c.gridy++;
-        		add(this.frigate, c);
-        		c.gridy++;
-        		add(this.destroyer, c);
-        		c.gridy++;
-        		add(this.cruiser, c);
-        		c.gridy++;
-       			add(this.labelCoordX, c);
-       			add(this.coordX, c);
-       			c.gridy++;
-       			add(this.labelCoordX2, c);
-       			add(this.coordX2, c);
-       			c.gridy++;
-       			add(this.labelCoordY, c);
-       			add(this.coordY, c);
-       			c.gridy++;
-       			add(this.labelCoordY2, c);
-       			add(this.coordY2, c);
-       			c.gridy++;
-       			c.gridx = 1;
-       			add(this.placeShip, c);       			
-        			
-        		}
-        	
-        	private class ClickListener implements ActionListener{
-            	//ActionListener für Klick auf Schiffbuttons und Place Ship Button
-           			@Override
-            		public void actionPerformed(ActionEvent e) {
-            			if(e.getSource() == corvette){
-            			// Methoden um die Koordinaten zu erfassen
-            				setCorvette();
-           				}
-           				else if(e.getSource() == cruiser){
-           				// Methoden um die Koordinaten zu erfassen
-           					setCruiser();
-            			}
-           				else if(e.getSource() == destroyer){
-           				// Methoden um die Koordinaten zu erfassen
-           					setDestroyer();
-            			}
-           				else if(e.getSource() == frigate){
-           				// Methoden um die Koordinaten zu erfassen
-           					setFrigate();
-            			}
-           				else if(e.getSource() == placeShip){
-           				// Methoden um die Koordinaten des Schiffes in Datei zu speichern
-            			}
-            	    }
-            	}
-        	
-        	public void setCorvette(){
-        		
-        		this.x = coordX.getText();
-        		this.x2 = coordX2.getText();
-        		this.y = coordY.getText();
-        		this.y2 = coordY2.getText();
-        		
-        		if(Integer.parseInt(x2) - Integer.parseInt(x) == 2 && Integer.parseInt(y) - Integer.parseInt(y2) == 0){
-        			if(coordinates[Integer.parseInt(x)][Integer.parseInt(y)] == coordinates[Integer.parseInt(x2)][Integer.parseInt(y)]){
-        				for(int i = Integer.parseInt(y); i <= Integer.parseInt(y2); i++) {
-        					shipCoordinates[r] = coordinates[Integer.parseInt(y)][Integer.parseInt(y2)];
-        					r++;
-        				}
-        			}
-
-        		}
-        		else if (Integer.parseInt(x) - Integer.parseInt(x2) == 0 && Integer.parseInt(y2) - Integer.parseInt(y) == 2){
-        			if(coordinates[Integer.parseInt(x)][Integer.parseInt(y)] == coordinates[Integer.parseInt(x)][Integer.parseInt(y2)]){
-        				for(int i = Integer.parseInt(x); i <= Integer.parseInt(x2); i++) {
-        					shipCoordinates[r] = coordinates[Integer.parseInt(y)][Integer.parseInt(y2)];
-        					r++;
-        				}
-        		}
-        		else {
-        			JOptionPane.showMessageDialog(this, "Ship is 3 units long, place it either horizontally or vertically!\nOne Coordinate must end at its start\nTry again!");
-        		}
-        		}
-        	}
-        	
-        	public void setFrigate(){
-        		this.x = coordX.getText();
-        		this.x2 = coordX2.getText();
-        		this.y = coordY.getText();
-        		this.y2 = coordY2.getText();
-        		
-        		if(Integer.parseInt(x2) - Integer.parseInt(x) == 3 && Integer.parseInt(y) - Integer.parseInt(y2) == 0){
-        			if(coordinates[Integer.parseInt(x)][Integer.parseInt(y)] == coordinates[Integer.parseInt(x2)][Integer.parseInt(y)]){
-        				for(int i = Integer.parseInt(y); i <= Integer.parseInt(y2); i++) {
-        					shipCoordinates[r] = coordinates[Integer.parseInt(y)][Integer.parseInt(y2)];
-        					r++;
-        				}
-        			}
-
-        		}
-        		else if (Integer.parseInt(x) - Integer.parseInt(x2) == 0 && Integer.parseInt(y2) - Integer.parseInt(y) == 3){
-        			if(coordinates[Integer.parseInt(x)][Integer.parseInt(y)] == coordinates[Integer.parseInt(x)][Integer.parseInt(y2)]){
-        				for(int i = Integer.parseInt(x); i <= Integer.parseInt(x2); i++) {
-        					shipCoordinates[r] = coordinates[Integer.parseInt(y)][Integer.parseInt(y2)];
-        					r++;
-        				}
-        		}
-        		else {
-        			JOptionPane.showMessageDialog(this, "Ship is 3 units long, place it either horizontally or vertically!\nOne Coordinate must end at its start\nTry again!");
-        		}
-        		}
-        	}
-        	
-        	public void setDestroyer(){
-        		this.x = coordX.getText();
-        		this.x2 = coordX2.getText();
-        		this.y = coordY.getText();
-        		this.y2 = coordY2.getText();
-        		
-        		if(Integer.parseInt(x2) - Integer.parseInt(x) == 4 && Integer.parseInt(y) - Integer.parseInt(y2) == 0){
-        			if(coordinates[Integer.parseInt(x)][Integer.parseInt(y)] == coordinates[Integer.parseInt(x2)][Integer.parseInt(y)]){
-        				for(int i = Integer.parseInt(y); i <= Integer.parseInt(y2); i++) {
-        					shipCoordinates[r] = coordinates[Integer.parseInt(y)][Integer.parseInt(y2)];
-        					r++;
-        				}
-
-        			}
-        		else if (Integer.parseInt(x) - Integer.parseInt(x2) == 0 && Integer.parseInt(y2) - Integer.parseInt(y) == 4){
-        			if(coordinates[Integer.parseInt(x)][Integer.parseInt(y)] == coordinates[Integer.parseInt(x)][Integer.parseInt(y2)]){
-        				for(int i = Integer.parseInt(x); i <= Integer.parseInt(x2); i++) {
-        					shipCoordinates[r] = coordinates[Integer.parseInt(y)][Integer.parseInt(y2)];
-        					r++;
-        				}
-        			}
-        		else {
-        			JOptionPane.showMessageDialog(this, "Ship is 3 units long, place it either horizontally or vertically!\nOne Coordinate must end at its start\nTry again!");
-        		}
-        	}
-        }
-        }
-        	
-        	public void setCruiser(){
-        		this.x = coordX.getText();
-        		this.x2 = coordX2.getText();
-        		this.y = coordY.getText();
-        		this.y2 = coordY2.getText();
-        		
-        		if(Integer.parseInt(x2) - Integer.parseInt(x) == 5 && Integer.parseInt(y) - Integer.parseInt(y2) == 0){
-        			if(coordinates[Integer.parseInt(x)][Integer.parseInt(y)] == coordinates[Integer.parseInt(x2)][Integer.parseInt(y)]){
-        				for(int i = Integer.parseInt(y); i <= Integer.parseInt(y2); i++) {
-        					shipCoordinates[r] = coordinates[Integer.parseInt(y)][Integer.parseInt(y2)];
-        					r++;
-        				}
-        			}
-
-        		}
-        		else if (Integer.parseInt(x) - Integer.parseInt(x2) == 0 && Integer.parseInt(y2) - Integer.parseInt(y) == 5){
-        			if(coordinates[Integer.parseInt(x)][Integer.parseInt(y)] == coordinates[Integer.parseInt(x)][Integer.parseInt(y2)]){
-        				for(int i = Integer.parseInt(x); i <= Integer.parseInt(x2); i++) {
-        					shipCoordinates[r] = coordinates[Integer.parseInt(y)][Integer.parseInt(y2)];
-        					r++;
-        				}
-        			}
-        		else {
-        			JOptionPane.showMessageDialog(this, "Ship is 3 units long, place it either horizontally or vertically!\nOne Coordinate must end at its start\nTry again!");
-        		}
-        		}
-        	}        	
-        	
-        	int[] getShipCoordinates(){      		
-        		
-        		
-        		return shipCoordinates;
-        	}
-        	
-           	public void registerListener(){
-            	//Listener dem jeweiligen Button zuweisen
-            		this.corvette.addActionListener(this.clickListener);
-            		this.cruiser.addActionListener(this.clickListener);
-            		this.frigate.addActionListener(this.clickListener);
-            		this.destroyer.addActionListener(this.clickListener);
-            		this.placeShip.addActionListener(this.clickListener);
-            	}
-        	
-        	
-    	}
-    	
-    	public void registerListener(){
-    	//Listener dem jeweiligen Button zuweisen
-    		this.cancel.addActionListener(this.clickListener);
-    		this.connect.addActionListener(this.clickListener);
-    	}
-    		
+	public String getIP() throws SocketException {
+		Enumeration<NetworkInterface> e = NetworkInterface.getNetworkInterfaces();
+		while(e.hasMoreElements())
+		{
+		    NetworkInterface n = (NetworkInterface) e.nextElement();
+		    Enumeration<InetAddress> ee = n.getInetAddresses();
+		    while (ee.hasMoreElements())
+		    {   		    		 		    	
+		        InetAddress i = (InetAddress) ee.nextElement();
+		        if(i.toString().contains("192.168")){
+		        	return i.getHostAddress();
+		        }
+		    }
+		}
+		return null;
 	}
-			
-	public void registerListener(){
-		//Listener dem jeweiligen Button zuweisen
-		this.close.addActionListener(this.clickListener);
-		this.pvp.addActionListener(this.clickListener);
-		this.player.addActionListener(this.clickListener);
-
-	}
+    
+    public boolean isInt(String s){
+    	if(!s.isEmpty()){
+    		try{
+    			Integer.parseInt(s); 
+    	    } catch(NumberFormatException e) { 
+    	        return false; 
+    		}   
+    		return true;
+    	}
+    	else return false;
+    }
+    
+    public boolean isCorvette(int x, int x2, int y, int y2){
+    	this.x = Integer.parseInt(coordX.getText());
+    	this.x2 = Integer.parseInt(coordX2.getText());
+    	this.y = Integer.parseInt(coordY.getText());
+    	this.y2 = Integer.parseInt(coordY2.getText());
+    	
+    	if( x2 - x == 2 && y - y2 == 0 || x - x2 == 0 && y2 - y == 2 ){
+    		return true;
+    	}
+    	else {
+    		return false;
+    	}
+    }
+    public boolean isFrigate(int x, int x2, int y, int y2){
+    	this.x = Integer.parseInt(coordX.getText());
+    	this.x2 = Integer.parseInt(coordX2.getText());
+    	this.y = Integer.parseInt(coordY.getText());
+    	this.y2 = Integer.parseInt(coordY2.getText());
+    	
+    	if( (x2 - x == 3 && y - y2 == 0) || (x - x2 == 0 && y2 - y == 3) ){
+    		return true;
+    	}
+    	else {
+    		return false;
+    	}
+    }
+    public boolean isDestroyer(int x, int x2, int y, int y2){
+    	this.x = Integer.parseInt(coordX.getText());
+    	this.x2 = Integer.parseInt(coordX2.getText());
+    	this.y = Integer.parseInt(coordY.getText());
+    	this.y2 = Integer.parseInt(coordY2.getText());
+    	
+    	if( (x2 - x == 4 && y - y2 == 0) || (x - x2 == 0 && y2 - y == 4) ){
+    		return true;
+    	}
+    	else {
+    		return false;
+    	}
+    }
+    public boolean isCruiser(int x, int x2, int y, int y2){
+    	this.x = Integer.parseInt(coordX.getText());
+    	this.x2 = Integer.parseInt(coordX2.getText());
+    	this.y = Integer.parseInt(coordY.getText());
+    	this.y2 = Integer.parseInt(coordY2.getText());
+    	
+    	if( (x2 - x == 5 && y - y2 == 0) || (x - x2 == 0 && y2 - y == 5) ){
+    		return true;
+    	}
+    	else {
+    		return false;
+    	}
+    }
 	
+	//Constructor Methods
+    public MainMenu(String title){
+    	//Konstruktor
+    	super(title);
+    	initializeComps();										//Komponenten initialisieren
+   		sortComps();											//Komponenten nach Layoutvorgabe sortieren
+   		registerListener();										//Listener zuweisen
+   		this.setVisible(true);									//Sichtbar machen
+   		this.setSize(600, 600);									//Fenstergröße festlegen
+    	this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);	//Programm schließen, wenn Fenster geschlossen wird
+    	this.setResizable(false); 								//Fenstergröße nicht veränderbar
+    	
+   	}
+	
+	private void initializeComps() {
+       	//Komponenten Initialisieren
+    	this.coordX = new JTextField("00");
+    	this.coordX2 =  new JTextField("00");
+    	this.coordY =  new JTextField("00");
+       	this.coordY2 =  new JTextField("00");
+        this.player = new JTextField();
+       			
+        this.labelCoordX = new JLabel("X start");
+        this.labelCoordX2 = new JLabel("X end");
+        this.labelCoordY = new JLabel("Y start");
+        this.labelCoordY2 = new JLabel("Y end");
+        this.tutorial = new JLabel("Enter size fitting coordinates -> Click on the specific type of ship");
+        this.name = new JLabel("Nickname: ");
+       
+        		
+        //this.corvette = new JButton("Corvette (Länge: 2)");
+        this.corvette.setEnabled(false);
+        //this.frigate = new JButton("Frigate (Länge: 3)");
+        this.frigate.setEnabled(false);
+        //this.destroyer = new JButton("Destroyer (Länge: 4)");
+        this.destroyer.setEnabled(false);
+        //this.cruiser = new JButton("Cruiser (Länge: 5)");
+        this.cruiser.setEnabled(false);
+        	
+        this.startGame = new JButton("Start Game!");
+        	
+       	this.clickListener = new ClickListener();
+       	this.textListener = new TextChangeListener();
 
-	//MainMethode zu Testzwecken
+    }
+	
+    public void sortComps() {
+    	//Komponenten per GridBagLayout im Frame anordnen
+   		this.getContentPane().setLayout(new GridBagLayout());
+   		GridBagConstraints c = new GridBagConstraints();
+   		c.fill = GridBagConstraints.BOTH;
+   		c.insets = new Insets(2, 2, 2, 2);
+   		add(this.tutorial, c);
+   		c.gridy = 1;
+   		add(this.name, c);
+   		c.gridy++;
+   		add(this.player, c);
+   		c.gridy++;
+    	add(this.corvette, c);
+      	c.gridy++;
+    	add(this.frigate, c);
+    	c.gridy++;
+    	add(this.destroyer, c);
+    	c.gridy++;
+    	add(this.cruiser, c);
+    	c.gridy++;
+    	add(this.labelCoordX, c);
+   		c.gridy++;
+   		add(this.coordX, c);
+   		c.gridy++;
+   		add(this.labelCoordX2, c);
+   		c.gridy++;
+   		add(this.coordX2, c);
+   		c.gridy++;
+   		add(this.labelCoordY, c);
+   		c.gridy++;
+   		add(this.coordY, c);
+   		c.gridy++;
+   		add(this.labelCoordY2, c);
+   		c.gridy++;
+   		add(this.coordY2, c);
+   		c.gridy++;
+   		add(this.startGame, c);
+    }
+    
+   	public void registerListener(){
+        //Listener dem jeweiligen Button zuweisen
+       	this.corvette.addActionListener(this.clickListener);
+       	this.cruiser.addActionListener(this.clickListener);
+       	this.frigate.addActionListener(this.clickListener);
+       	this.destroyer.addActionListener(this.clickListener);
+       	this.startGame.addActionListener(this.clickListener);
+       	//this.player.addActionListener(this.clickListener);
+       	
+       	this.coordX.addKeyListener(this.textListener);
+       	this.coordX.addKeyListener(this.textListener);
+       	this.coordX2.addKeyListener(this.textListener);
+       	this.coordY.addKeyListener(this.textListener);
+       	this.coordY2.addKeyListener(this.textListener);
+       	
+    } 
+
+    private class TextChangeListener implements KeyListener{
+
+		@Override
+		public void keyReleased(KeyEvent e) {
+			// TODO Automatisch generierter Methodenstub							
+
+			if(e.getSource() == coordX){
+			
+					
+				
+      			if(isInt(coordX.getText()) == true){
+      				if(isCorvette(Integer.parseInt(coordX.getText()), Integer.parseInt(coordX2.getText()), Integer.parseInt(coordY.getText()), Integer.parseInt(coordY2.getText())) == true){
+      					corvette.setEnabled(true);
+      				}
+      				else if(isFrigate(Integer.parseInt(coordX.getText()), Integer.parseInt(coordX2.getText()), Integer.parseInt(coordY.getText()), Integer.parseInt(coordY2.getText())) == true){
+      					frigate.setEnabled(true);
+      				}
+      				else if(isDestroyer(Integer.parseInt(coordX.getText()), Integer.parseInt(coordX2.getText()), Integer.parseInt(coordY.getText()), Integer.parseInt(coordY2.getText())) == true){
+      					destroyer.setEnabled(true);
+      				}
+      				else if(isCruiser(Integer.parseInt(coordX.getText()), Integer.parseInt(coordX2.getText()), Integer.parseInt(coordY.getText()), Integer.parseInt(coordY2.getText())) == true){
+      					cruiser.setEnabled(true);
+      				}
+      				else if(!isCorvette(Integer.parseInt(coordX.getText()), Integer.parseInt(coordX2.getText()), Integer.parseInt(coordY.getText()), Integer.parseInt(coordY2.getText())) == true){
+      					corvette.setEnabled(false);
+      				}
+      				else if(!isFrigate(Integer.parseInt(coordX.getText()), Integer.parseInt(coordX2.getText()), Integer.parseInt(coordY.getText()), Integer.parseInt(coordY2.getText())) == true){
+      					frigate.setEnabled(false);
+      				}
+      				else if(!isDestroyer(Integer.parseInt(coordX.getText()), Integer.parseInt(coordX2.getText()), Integer.parseInt(coordY.getText()), Integer.parseInt(coordY2.getText())) == true){
+      					destroyer.setEnabled(false);
+      				}
+      				else if(!isCruiser(Integer.parseInt(coordX.getText()), Integer.parseInt(coordX2.getText()), Integer.parseInt(coordY.getText()), Integer.parseInt(coordY2.getText())) == true){
+      					cruiser.setEnabled(false);
+      				}
+				}
+      		}
+			else if(e.getSource() == coordX2){
+      			if(isInt(coordX2.getText()) == true){
+      				if(isCorvette(Integer.parseInt(coordX.getText()), Integer.parseInt(coordX2.getText()), Integer.parseInt(coordY.getText()), Integer.parseInt(coordY2.getText())) == true){
+      					corvette.setEnabled(true);
+      				}
+      				else if(isFrigate(Integer.parseInt(coordX.getText()), Integer.parseInt(coordX2.getText()), Integer.parseInt(coordY.getText()), Integer.parseInt(coordY2.getText())) == true){
+      					frigate.setEnabled(true);
+      				}
+      				else if(isDestroyer(Integer.parseInt(coordX.getText()), Integer.parseInt(coordX2.getText()), Integer.parseInt(coordY.getText()), Integer.parseInt(coordY2.getText())) == true){
+      					destroyer.setEnabled(true);
+      				}
+      				else if(isCruiser(Integer.parseInt(coordX.getText()), Integer.parseInt(coordX2.getText()), Integer.parseInt(coordY.getText()), Integer.parseInt(coordY2.getText())) == true){
+      					cruiser.setEnabled(true);
+      				}
+      				else if(!isCorvette(Integer.parseInt(coordX.getText()), Integer.parseInt(coordX2.getText()), Integer.parseInt(coordY.getText()), Integer.parseInt(coordY2.getText())) == true){
+      					corvette.setEnabled(false);
+      				}
+      				else if(!isFrigate(Integer.parseInt(coordX.getText()), Integer.parseInt(coordX2.getText()), Integer.parseInt(coordY.getText()), Integer.parseInt(coordY2.getText())) == true){
+      					frigate.setEnabled(false);
+      				}
+      				else if(!isDestroyer(Integer.parseInt(coordX.getText()), Integer.parseInt(coordX2.getText()), Integer.parseInt(coordY.getText()), Integer.parseInt(coordY2.getText())) == true){
+      					destroyer.setEnabled(false);
+      				}
+      				else if(!isCruiser(Integer.parseInt(coordX.getText()), Integer.parseInt(coordX2.getText()), Integer.parseInt(coordY.getText()), Integer.parseInt(coordY2.getText())) == true){
+      					cruiser.setEnabled(false);
+      				}
+      			}
+      		}
+			else if(e.getSource() == coordY){
+      			if(isInt(coordY.getText()) == true){
+      				if(isCorvette(Integer.parseInt(coordX.getText()), Integer.parseInt(coordX2.getText()), Integer.parseInt(coordY.getText()), Integer.parseInt(coordY2.getText())) == true){
+      					corvette.setEnabled(true);
+      				}
+      				else if(isFrigate(Integer.parseInt(coordX.getText()), Integer.parseInt(coordX2.getText()), Integer.parseInt(coordY.getText()), Integer.parseInt(coordY2.getText())) == true){
+      					frigate.setEnabled(true);
+      				}
+      				else if(isDestroyer(Integer.parseInt(coordX.getText()), Integer.parseInt(coordX2.getText()), Integer.parseInt(coordY.getText()), Integer.parseInt(coordY2.getText())) == true){
+      					destroyer.setEnabled(true);
+      				}
+      				else if(isCruiser(Integer.parseInt(coordX.getText()), Integer.parseInt(coordX2.getText()), Integer.parseInt(coordY.getText()), Integer.parseInt(coordY2.getText())) == true){
+      					cruiser.setEnabled(true);
+      				}
+      				else if(!isCorvette(Integer.parseInt(coordX.getText()), Integer.parseInt(coordX2.getText()), Integer.parseInt(coordY.getText()), Integer.parseInt(coordY2.getText())) == true){
+      					corvette.setEnabled(false);
+      				}
+      				else if(!isFrigate(Integer.parseInt(coordX.getText()), Integer.parseInt(coordX2.getText()), Integer.parseInt(coordY.getText()), Integer.parseInt(coordY2.getText())) == true){
+      					frigate.setEnabled(false);
+      				}
+      				else if(!isDestroyer(Integer.parseInt(coordX.getText()), Integer.parseInt(coordX2.getText()), Integer.parseInt(coordY.getText()), Integer.parseInt(coordY2.getText())) == true){
+      					destroyer.setEnabled(false);
+      				}
+      				else if(!isCruiser(Integer.parseInt(coordX.getText()), Integer.parseInt(coordX2.getText()), Integer.parseInt(coordY.getText()), Integer.parseInt(coordY2.getText())) == true){
+      					cruiser.setEnabled(false);
+      				}
+      			}
+      		}
+			else if(e.getSource() == coordY2){
+      			if(isInt(coordY2.getText()) == true){
+      				if(isCorvette(Integer.parseInt(coordX.getText()), Integer.parseInt(coordX2.getText()), Integer.parseInt(coordY.getText()), Integer.parseInt(coordY2.getText())) == true){
+      					corvette.setEnabled(true);
+      				}
+      				else if(isFrigate(Integer.parseInt(coordX.getText()), Integer.parseInt(coordX2.getText()), Integer.parseInt(coordY.getText()), Integer.parseInt(coordY2.getText())) == true){
+      					frigate.setEnabled(true);
+      				}
+      				else if(isDestroyer(Integer.parseInt(coordX.getText()), Integer.parseInt(coordX2.getText()), Integer.parseInt(coordY.getText()), Integer.parseInt(coordY2.getText())) == true){
+      					destroyer.setEnabled(true);
+      				}
+      				else if(isCruiser(Integer.parseInt(coordX.getText()), Integer.parseInt(coordX2.getText()), Integer.parseInt(coordY.getText()), Integer.parseInt(coordY2.getText())) == true){
+      					cruiser.setEnabled(true);
+      				}
+      				else if(!isCorvette(Integer.parseInt(coordX.getText()), Integer.parseInt(coordX2.getText()), Integer.parseInt(coordY.getText()), Integer.parseInt(coordY2.getText())) == true){
+      					corvette.setEnabled(false);
+      				}
+      				else if(!isFrigate(Integer.parseInt(coordX.getText()), Integer.parseInt(coordX2.getText()), Integer.parseInt(coordY.getText()), Integer.parseInt(coordY2.getText())) == true){
+      					frigate.setEnabled(false);
+      				}
+      				else if(!isDestroyer(Integer.parseInt(coordX.getText()), Integer.parseInt(coordX2.getText()), Integer.parseInt(coordY.getText()), Integer.parseInt(coordY2.getText())) == true){
+      					destroyer.setEnabled(false);
+      				}
+      				else if(!isCruiser(Integer.parseInt(coordX.getText()), Integer.parseInt(coordX2.getText()), Integer.parseInt(coordY.getText()), Integer.parseInt(coordY2.getText())) == true){
+      					cruiser.setEnabled(false);
+      				}
+      			}
+      		}
+			
+			
+		}
+		@Override
+		public void keyPressed(KeyEvent e) {
+			// TODO Automatisch generierter Methodenstub
+			
+		}
+
+		@Override
+		public void keyTyped(KeyEvent e) {
+			// TODO Automatisch generierter Methodenstub
+			
+		}
+    }
+    
+    private class ClickListener implements ActionListener{
+       	//ActionListener für Klick auf Schiffbuttons und Place Ship Button
+      	@Override
+        public void actionPerformed(ActionEvent e) {
+      		
+      		if(e.getSource() == corvette){
+        	// Methoden um die Koordinaten zu erfassen
+      			if(corvette.isEnabled() == true){
+      				setShip();
+      				printCords();
+      			}   		
+       		}
+       		else if(e.getSource() == cruiser){
+       		// Methoden um die Koordinaten zu erfassen
+      			if(cruiser.isEnabled() == true){
+      				setShip();
+      				printCords();
+      			} 
+        	}
+       		else if(e.getSource() == destroyer){
+       		// Methoden um die Koordinaten zu erfassen
+      			if(destroyer.isEnabled() == true){
+      				setShip();
+      				printCords();
+      			} 
+        	}
+       		else if(e.getSource() == frigate){
+       		// Methoden um die Koordinaten zu erfassen
+      			if(frigate.isEnabled() == true){
+      				setShip();
+      				printCords();
+      			} 
+        	}
+        }
+    }
+    
 	public static void main(String[] args){
-		new MainMenu("Main Menu"); 						//Neues Fenster mit Titel "Main Menu"
+		//Neues Fenster mit Titel "Main Menu"
+		new MainMenu("Main Menu"); 						
 	
 	}
 		
