@@ -1,14 +1,15 @@
+//Package Dependency
 package battleship;
-
+//Imports
 import javax.swing.*;
-
-public class Data {
+//Class
+class Data {
     //Attributes:
     ///Primitive
-    private int mainWindowWidth, mainWindowHeight, battlegroundEdgeLength, tileImageEdgeLength, shipListHeight, scoreBoardHeight;
+    private int mainWindowWidth, mainWindowHeight, gridNumberOfElements, battlegroundEdgeLength, tileImageEdgeLength, shipListHeight, scoreBoardHeight;
     ///Objects
     private ListAccumulator lists;
-    private ImageIcon ocean, shipHullTopBottom, shipHullLeftRight, shipEndTop, shipEndBottom, shipEndLeft, shipEndRight;
+    private ImageIcon ocean, fog, hit, miss, shipHullTopBottom, shipHullLeftRight, shipEndTop, shipEndBottom, shipEndLeft, shipEndRight;
     ///Arrays
     ///Collections
     //Constructor:
@@ -33,12 +34,22 @@ public class Data {
     }
     void setBattlegroundEdgeLength() {
         this.battlegroundEdgeLength = 10;
+        this.gridNumberOfElements = getBattlegroundEdgeLength() * getBattlegroundEdgeLength();
     }
     void setTileImageEdgeLength() {
         this.tileImageEdgeLength = 20;
     }
     void setOcean() {
         this.ocean = new ImageIcon(getClass().getClassLoader().getResource("resources/images/oceanImage.png")); //exception
+    }
+    void setFog() {
+        this.fog = new ImageIcon(getClass().getClassLoader().getResource("resources/images/fogImage.png")); //exception
+    }
+    void setHit() {
+        this.hit = new ImageIcon(getClass().getClassLoader().getResource("resources/images/hitImage.png"));
+    }
+    void setMiss() {
+        this.miss = new ImageIcon(getClass().getClassLoader().getResource("resources/images/missImage.png")); //exception
     }
     void setShipHullTopBottom() {
         this.shipHullTopBottom = new ImageIcon(getClass().getClassLoader().getResource("resources/images/shipHullTopBottom.png"));
@@ -67,6 +78,9 @@ public class Data {
     int getMainWindowHeight() {
         return mainWindowHeight;
     }
+    int getGridNumberOfElements() {
+        return this.gridNumberOfElements;
+    }
     int getBattlegroundEdgeLength() {
         return battlegroundEdgeLength;
     }
@@ -84,6 +98,13 @@ public class Data {
     }
     ImageIcon getOcean() {
         return ocean;
+    }
+    ImageIcon getFog() { return this.fog; }
+    ImageIcon getHit() {
+        return hit;
+    }
+    ImageIcon getMiss() {
+        return miss;
     }
     ImageIcon getShipHullTopBottom() {
         return shipHullTopBottom;
@@ -109,6 +130,7 @@ public class Data {
     ///Protected Behavior
     void loadImages() {
         setOcean();
+        setFog();
         setShipHullTopBottom();
         setShipHullLeftRight();
         setShipEndTop();
@@ -123,6 +145,10 @@ public class Data {
         setShipListHeight();
         setScoreBoardHeight();
         setTileImageEdgeLength();
+    }
+    void loadFogButtonImages() {
+        setHit();
+        setMiss();
     }
     ///Public Behavior
 }

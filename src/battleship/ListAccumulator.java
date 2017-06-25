@@ -19,6 +19,8 @@ class ListAccumulator<Human extends Ships, Board extends Player, Vessel extends 
     private LinkedList<Fog> fogTiles;
     private LinkedList<Grid> gridList;
     private LinkedList<String> listsNames;
+    private int[][][] enemyShipList;
+    private Player[] players;
     //Constructor:
     ListAccumulator() {
         ///Initially Used Setter
@@ -27,11 +29,15 @@ class ListAccumulator<Human extends Ships, Board extends Player, Vessel extends 
     //Setter And Getter:
     ///Private Setter
     ///Protected Setter
-    void setScoreBoard(LinkedList<Board> scoreBoard) { this.scoreBoard = scoreBoard; }
+    void setScoreBoard(LinkedList<Board> scoreBoard) {
+      this.scoreBoard = scoreBoard;
+    }
     void setScoreBoardNew() {
         this.scoreBoard = new LinkedList<Board>();
     }
-    void setScoreBoardIndex(int index, Board element) { getScoreBoard().set(index, element); }
+    void setScoreBoardIndex(int index, Board element) {
+      getScoreBoard().set(index, element);
+    }
     void setScoreBoardAddElement(Board element) {
         getScoreBoard().add(element);
     }
@@ -103,6 +109,16 @@ class ListAccumulator<Human extends Ships, Board extends Player, Vessel extends 
         getListsNames().add("Vineland"); getListsNames().add("Elk Island"); getListsNames().add("Shinai"); getListsNames().add("Lady Hawkins"); getListsNames().add("Canadolite");
         getListsNames().add("USS Dwight D. Eisenhower"); getListsNames().add("USS George Washington"); getListsNames().add("USS Harry S. Truman"); getListsNames().add("USS Paul Hamilton"); getListsNames().add("USS Roosevelt");
     }
+    void setEnemyShipList(int[][][] enemyShipList) {
+        this.enemyShipList = enemyShipList;
+    }
+    void setPlayers(Player[] players) {
+        this.players = players;
+    }
+    void setPlayerNew(){};
+    void setPlayersIndex(int index, Player players) {
+        this.players[index] = players;
+    }
     ///Public Setter
     ///Private Getter
     ///Protected Getter
@@ -130,16 +146,19 @@ class ListAccumulator<Human extends Ships, Board extends Player, Vessel extends 
     LinkedList<String> getListsNames() {
         return listsNames;
     }
+    int[][][] getEnemyShipList() {
+        return enemyShipList;
+    }
     ///Public Getter
     //Behavior:
     ///Private Behavior
     ///Protected Behavior
-    void orderGridList() {
+    void sortGridList() {
         boolean done = false;
         int jumps = 0;
         ListIterator<Grid> listIterator = getGridList().listIterator();
         while(!done) {
-            for(Grid tile: getGridList()) {
+            for(Tile tile: getGridList()) {
                 if(listIterator.hasNext() && tile.compareTo(listIterator.next()) < 0) {
                     swap(getGridList(), getGridList().indexOf(tile), listIterator.nextIndex());
                 } else if(listIterator.hasNext() && tile.compareTo(listIterator.next()) > 0) {
@@ -154,32 +173,12 @@ class ListAccumulator<Human extends Ships, Board extends Player, Vessel extends 
             }
         }
     }
-    void orderPlayerList() {
-        boolean done = false;
-        int jumps = 0;
-        ListIterator<Board> listIterator = getScoreBoard().listIterator();
-        while(!done) {
-            for(Board player: getScoreBoard()) {
-                if(listIterator.hasNext() && player.compareTo(listIterator.next()) < 0) {
-                    swap(getScoreBoard(), getScoreBoard().indexOf(player), listIterator.nextIndex());
-                } else if(listIterator.hasNext() && player.compareTo(listIterator.next()) > 0) {
-                    jumps = jumps + 1;
-                } else if(listIterator.hasNext() && player.compareTo(listIterator.next()) == 0) {
-                    jumps = jumps + 1;
-                } else if(!listIterator.hasNext()) {
-                    if(jumps == getScoreBoard().size() - 1) {
-                        done = true;
-                    }
-                }
-            }
-        }
-    }
-    void orderShipList() {
+    void sortShipList() {
         boolean done = false;
         int jumps = 0;
         ListIterator<Human> listIterator = getShips().listIterator();
         while(!done) {
-            for(Human ship: getShips()) {
+            for(Ships ship: getShips()) {
                 if(listIterator.hasNext() && ship.compareTo(listIterator.next()) < 0) {
                     swap(getShips(), getShips().indexOf(ship), listIterator.nextIndex());
                 } else if(listIterator.hasNext() && ship.compareTo(listIterator.next()) > 0) {
@@ -194,6 +193,40 @@ class ListAccumulator<Human extends Ships, Board extends Player, Vessel extends 
             }
         }
     }
+    void sortScoreBoard() {
+        boolean done = false;
+        int jumps = 0;
+        ListIterator<Grid> listIterator = getGridList().listIterator();
+        while(!done) {
+            for(Tile tile: getGridList()) {
+                if(listIterator.hasNext() && tile.compareTo(listIterator.next()) < 0) {
+                    swap(getGridList(), getGridList().indexOf(tile), listIterator.nextIndex());
+                } else if(listIterator.hasNext() && tile.compareTo(listIterator.next()) > 0) {
+                    jumps = jumps + 1;
+                } else if(listIterator.hasNext() && tile.compareTo(listIterator.next()) == 0) {
+                    jumps = jumps + 1;
+                } else if(!listIterator.hasNext()) {
+                    if(jumps == getGridList().size() - 1) {
+                        done = true;
+                    }
+                }
+            }
+        }
+    }
+    void changeTileHitByEnemy(boolean isHit, int xPos, int yPos) {
+        Data images = new Data();
+        images.setHit();
+        images.setMiss();
+        for(Grid gridTile : getGridList()) {
+            for(int i = 0; i < getGridList().size(); i++) {
+                if(gridTile.getXPos() == xPos && gridTile.getYPos() == yPos) {
+                    if(isHit) {
+                        gridTile.setBackgroundImage(images.getHit());
+                    } else gridTile.setBackgroundImage(images.getMiss());
+                }
+            }
+        }
+    }
     int checkShipForHits(LinkedList<ShipTile> ship) {
         int numberOfHits = 0;
         for(ShipTile a: ship) {
@@ -203,14 +236,25 @@ class ListAccumulator<Human extends Ships, Board extends Player, Vessel extends 
         }
         return numberOfHits;
     }
+    boolean checkLosingCondition() {
+        boolean losing = false;
+        int tempRunning = 0;
+        for(Human ship : getShips()) {
+            if(ship.isRunning()) {
+                tempRunning++;
+            }
+        }
+        if(tempRunning == 0) {
+            losing = true;
+        } else if (tempRunning > 0) {
+            losing = false;
+        }
+        return losing;
+    }
     void provideCoordinatesToTiles(int[][] coordinates) {
         int index = 0;
         for(Vessel a: getVesselTiles()) {
             a.setXPos(coordinates[0][index]);
-            index++;
-        }
-        index = 0;
-        for(Vessel a: getVesselTiles()) {
             a.setYPos(coordinates[1][index]);
             index++;
         }
@@ -240,6 +284,56 @@ class ListAccumulator<Human extends Ships, Board extends Player, Vessel extends 
             }
         }
     }
+    void assembleShips(int[][][] playerCoords) {
+        for(int s = 0; s < playerCoords[s].length; s++) {
+            if(s <= 2) {
+                setShipsAddElement((Human) new Corvette(playerCoords[s]));
+            }
+            if(s > 2 && s <= 4) {
+                setShipsAddElement((Human) new Frigate(playerCoords[s]));
+            }
+            if(s > 4 && s <= 6) {
+                setShipsAddElement((Human) new Destroyer(playerCoords[s]));
+            }
+            if(s > 6 && s <= 8) {
+                setShipsAddElement((Human) new Cruiser(playerCoords[s]));
+            }
+        }
+    }
+    void fillOceanTiles() {
+        for (int i = 0; i < 100; i++) {
+            for (int x = 0; x < 10; x++) {
+                for (int y = 0; y < 10; y++) {
+                    setOceanTilesAddElement(i, (Ocean) new OceanTile(x, y));
+                }
+            }
+        }
+    }
+    void determineOceanTiles() {
+        for(Human ship: getShips()) {
+            for(Ocean ocean : getOceanTiles()) {
+                for(int i = 0; i < ship.getLists().getVesselTiles().size(); i++) {
+                    if(ship.getLists().getVesselTiles(i).getXPos() == ocean.getXPos() &&
+                       ship.getLists().getVesselTiles(i).getYPos() == ocean.getYPos()) {
+                        getOceanTiles().remove(ocean);
+                    }
+                }
+            }
+        }
+    }
+    void assembleOceanTiles() {
+        fillOceanTiles();
+        determineOceanTiles();
+    }
+    void assembleFogList() {
+        for (int i = 0; i < 100; i++) {
+            for (int x = 0; x < 10; x++) {
+                for (int y = 0; y < 10; y++) {
+                    setFogTilesIndex(i, (Fog) new FogTile(x, y));
+                }
+            }
+        }
+    }
     void assembleGridList() {
         setGridListNew();
         for(Human ship: getShips()) {
@@ -250,7 +344,21 @@ class ListAccumulator<Human extends Ships, Board extends Player, Vessel extends 
         for(Ocean tile : getOceanTiles()) {
             setGridListAddElement((Grid) tile);
         }
-        orderGridList();
+        sortGridList();
+    }
+    void setPlayerLists(int[][][] shipCoords) {
+        setEnemyShipList(shipCoords);
+        setShipsNew();
+        setOceanListNew();
+        setGridListNew();
+        setFogTilesNew();
+        setScoreBoardNew();
+    }
+    void assemblePlayerLists() {
+        assembleShips(getEnemyShipList());
+        assembleOceanTiles();
+        assembleFogList();
+        assembleGridList();
     }
     ///Public Behavior
 }
